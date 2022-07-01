@@ -1,0 +1,45 @@
+
+/*
+Selects.
+
+The select outputs the Websites and the Game IDs where the Bet Amount is more than 100.
+
+select Website, g.Game_id, b.bet_amount from Bet b Left Outer Join BETTING_SITE s on b.site_id = s.site_id Left Outer Join Game g on g.game_id = b.game_id where bet_amount::numeric::float8 > 100;
+
+The select outputs the Names of the players from the Home Team in the first Game.
+
+select Name from PLAYER p Left Outer Join FOOTBALL_CLUB f on p.Hiring_Club = f.Club_Name Left Outer Join Game g on g.Team1_ID = f.Club_Name where g.game_id = 1;
+
+The select outputs the Winning Team and the Tournament Won of the Tournaments played on the Stadium 'Allianz Arena'.
+
+select Winner as "Winning Team", Name as "Tournament Won" from Tournament t Left Outer Join Game g on g.Tournament_Name = t.Name Left Outer Join Stadium s on g.Stadium_Played = s.Stadium_Name where s.Stadium_Name = 'Allianz Arena' group by Name;
+
+The select outputs the Sum of all left credits of all customers from all the betting sites. 
+
+select  'Sum of all left credits’ AS data, sum(credits) from customer c Left Outer Join Bet b on b.Customer_id = c.nickname Left Outer Join Betting_site bs on bs.Site_id = b.site_id
+
+
+Views.
+
+This view will show how much money is circulated on every website. This can be useful in selecting a bet site with a higher circulation of money which means more players place bets on them.
+
+CREATE VIEW TopGreedy AS
+select Website, sum(b.Bet_Amount) as "Total bet amount" from Bet b Left Outer Join BETTING_SITE s on b.site_id = s.site_id Left Outer Join Game g on g.game_id = b.game_id group by Website ORDER BY sum(b.Bet_Amount) DESC;
+select * from TopGreedy
+
+This view will show the Matches with bets that have a good coefficient to place a bet. For the users that love high risk-high reward games this feature will be useful in selecting a higher multiplier.
+
+CREATE VIEW BetOptimizer AS 
+
+select Team1_ID, Team1_Multiplier, Team2_ID,Team2_Multiplier, Match_date, Match_time from game where Team1_Multiplier>1.5 or Team2_Multiplier>1.5
+
+This view will show the Matches with bets that ended on a draw and the money bet on those specific games will return to the customers.
+
+CREATE VIEW DrawResults AS
+select Team1_ID, Team2_ID, Match_Date, result from Game where substring(RESULT,1,1)=SUBSTRING(RESULT,3,3)
+
+This view will show top players that cost more than 100 million euro. Those players are shown along with their xG and time left until their contract expires. This is useful to anticipate and predict historic transfers in the world of football.   
+
+CREATE VIEW TeamChanges AS
+select Name, price, xg, (DATE_PART('year', Contract_time) - DATE_PART('year', Current_date)) * 12 + (DATE_PART('month', Contract_time) - DATE_PART('month', Current_date))from player where Cast(SUBSTR(price, 0, LENGTH(price) ) as integer)>100 ORDER BY Cast(xg as integer) desc
+*/
